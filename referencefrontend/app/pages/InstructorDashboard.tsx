@@ -3,8 +3,7 @@ import { motion } from 'motion/react';
 import { ConceptLensSlider } from '../components/ConceptLensSlider';
 import { AlertPanel } from '../components/AlertPanel';
 import { ConceptDAG } from '../components/ConceptDAG';
-import { HeatmapCell } from '../components/HeatmapCell';
-import { ConceptLensLogo } from '../components/ConceptLensLogo';
+import { D3Heatmap } from '../components/D3Heatmap';
 import { ChevronDown, TrendingUp, Users, AlertCircle } from 'lucide-react';
 import { concepts, alerts, defaultParameters, students } from '../data/mockData';
 import type { ConceptNode } from '../data/mockData';
@@ -145,37 +144,11 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ onConc
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <div className="min-w-[600px]">
-                  {/* Headers */}
-                  <div className="grid grid-cols-[120px_repeat(15,1fr)] gap-1 mb-1">
-                    <div></div>
-                    {students.slice(0, 15).map((_, idx) => (
-                      <div key={idx} className="text-[10px] text-foreground-secondary text-center">
-                        S{idx + 1}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Rows */}
-                  {concepts.slice(0, 10).map((concept, rowIdx) => (
-                    <div key={concept.id} className="grid grid-cols-[120px_repeat(15,1fr)] gap-1 mb-1">
-                      <div className="text-xs text-foreground-secondary flex items-center truncate pr-2">
-                        {concept.name}
-                      </div>
-                      {students.slice(0, 15).map((student, colIdx) => (
-                        <HeatmapCell
-                          key={`${rowIdx}-${colIdx}`}
-                          value={student.conceptReadiness[concept.id] || 0}
-                          onClick={() => handleNodeClick(concept)}
-                          row={rowIdx}
-                          col={colIdx}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <D3Heatmap
+                concepts={concepts}
+                students={students}
+                onConceptClick={handleNodeClick}
+              />
             </div>
           </motion.div>
 

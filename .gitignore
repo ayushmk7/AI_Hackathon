@@ -1,4 +1,62 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
 backend/.env
+*.pem
 
+# Dependencies
+node_modules/
+referencefrontend/node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+env/
+.pnp
+.pnp.js
 
+# Build outputs
+dist/
+referencefrontend/dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
 
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.cache/
+.parcel-cache/
+.vite/
+*.tsbuildinfo
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing and coverage
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+*.cover
+
+# Misc
+*.local
+.vercel
+.turbo

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ConceptLensButton } from '../components/ConceptLensButton';
 import { WaterfallChart } from '../components/WaterfallChart';
+import { DependencyTree } from '../components/DependencyTree';
 import { ArrowLeft, ChevronDown, Info } from 'lucide-react';
 import type { ConceptNode } from '../data/mockData';
 import { concepts, getWaterfallData } from '../data/mockData';
@@ -132,63 +133,8 @@ export const RootCauseTrace: React.FC<RootCauseTraceProps> = ({ concept, onBack 
               {/* Visual dependency graph */}
               <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
                 <h3 className="text-lg text-foreground mb-4">Upstream Dependencies</h3>
-                <div className="flex items-center justify-center h-64 bg-surface rounded-lg">
-                  <svg width="100%" height="100%" viewBox="0 0 400 250">
-                    {/* Simple tree visualization */}
-                    {prerequisites.map((prereq, idx) => {
-                      const x = 200;
-                      const y = 50 + idx * 60;
-                      return (
-                        <g key={prereq.id}>
-                          <line
-                            x1={x}
-                            y1={y}
-                            x2={200}
-                            y2={220}
-                            stroke="#DEE2E6"
-                            strokeWidth="2"
-                          />
-                          <circle
-                            cx={x}
-                            cy={y}
-                            r="20"
-                            fill="#FFFFFF"
-                            stroke={getColor(prereq.readiness)}
-                            strokeWidth="2.5"
-                          />
-                          <text
-                            x={x}
-                            y={y + 4}
-                            textAnchor="middle"
-                            fill={getColor(prereq.readiness)}
-                            fontSize="11"
-                            fontWeight="600"
-                          >
-                            {Math.round(prereq.readiness * 100)}%
-                          </text>
-                        </g>
-                      );
-                    })}
-                    {/* Target concept */}
-                    <circle
-                      cx="200"
-                      cy="220"
-                      r="24"
-                      fill="#FFFFFF"
-                      stroke={getColor(concept.readiness)}
-                      strokeWidth="3"
-                    />
-                    <text
-                      x="200"
-                      y="226"
-                      textAnchor="middle"
-                      fill={getColor(concept.readiness)}
-                      fontSize="12"
-                      fontWeight="600"
-                    >
-                      {Math.round(concept.readiness * 100)}%
-                    </text>
-                  </svg>
+                <div className="h-64 bg-surface rounded-lg overflow-hidden">
+                  <DependencyTree concept={concept} allConcepts={concepts} />
                 </div>
               </div>
             </motion.div>

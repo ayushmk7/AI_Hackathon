@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ConfidenceBadge } from '../components/ConfidenceBadge';
 import { BookOpen, TrendingUp, Target, ChevronRight, ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
-import { concepts, getStudyPlan } from '../data/mockData';
+import { concepts, students, getStudyPlan } from '../data/mockData';
+import { StudentConceptGraph } from '../components/StudentConceptGraph';
 
 const mockStudents = [
   { id: 's1', name: 'Emma Johnson', email: 'emma.j@umich.edu' },
@@ -204,73 +205,14 @@ export const StudentReport: React.FC = () => {
             transition={{ delay: 0.4 }}
           >
             <h2 className="text-lg text-foreground mb-4">Your Concept Map</h2>
-            <div className="bg-surface rounded-lg p-8 flex items-center justify-center" style={{ height: '400px' }}>
-              <svg width="100%" height="100%" viewBox="0 0 700 350">
-                {/* Simplified personal graph */}
-                {concepts.slice(0, 8).map((concept, idx) => {
-                  const angle = (idx / 8) * Math.PI * 2 - Math.PI / 2;
-                  const radius = 120;
-                  const x = 350 + Math.cos(angle) * radius;
-                  const y = 175 + Math.sin(angle) * radius;
-                  const studentReadiness = Math.random() * 0.6 + 0.3;
-
-                  return (
-                    <g key={concept.id}>
-                      {/* Connection to center */}
-                      <line
-                        x1={x}
-                        y1={y}
-                        x2="350"
-                        y2="175"
-                        stroke="#DEE2E6"
-                        strokeWidth="1.5"
-                        opacity="0.5"
-                      />
-                      
-                      {/* Concept node */}
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="28"
-                        fill="#FFFFFF"
-                        stroke={getColor(studentReadiness)}
-                        strokeWidth="2.5"
-                      />
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r={28 * studentReadiness}
-                        fill={getColor(studentReadiness)}
-                        opacity="0.15"
-                      />
-                      <text
-                        x={x}
-                        y={y + 3}
-                        textAnchor="middle"
-                        fill={getColor(studentReadiness)}
-                        fontSize="11"
-                        fontWeight="600"
-                        fontFamily="system-ui"
-                      >
-                        {Math.round(studentReadiness * 100)}%
-                      </text>
-                      <text
-                        x={x}
-                        y={y + 45}
-                        textAnchor="middle"
-                        fill="#00274C"
-                        fontSize="11"
-                        fontFamily="system-ui"
-                      >
-                        {concept.name}
-                      </text>
-                    </g>
-                  );
-                })}
-                
-                {/* Center indicator */}
-                <circle cx="350" cy="175" r="8" fill="#00274C" opacity="0.3" />
-              </svg>
+            <div className="bg-surface rounded-lg overflow-hidden" style={{ height: '400px' }}>
+              <StudentConceptGraph
+                concepts={concepts}
+                studentReadiness={
+                  students.find((s) => s.id === selectedStudent.id)?.conceptReadiness ??
+                  students[0].conceptReadiness
+                }
+              />
             </div>
             <p className="text-xs text-foreground-secondary text-center mt-4">
               Interactive view showing your mastery across all course concepts

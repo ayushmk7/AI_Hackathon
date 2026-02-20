@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
 import type { WaterfallItem } from '../data/mockData';
 
 interface WaterfallChartProps {
@@ -7,83 +7,130 @@ interface WaterfallChartProps {
 }
 
 export const WaterfallChart: React.FC<WaterfallChartProps> = ({ data }) => {
-  const maxValue = Math.max(...data.map(d => Math.abs(d.value)));
-  
-  let runningTotal = 0;
-  const chartData = data.map((item, idx) => {
-    const start = runningTotal;
-    const value = item.value;
-    
-    if (item.type !== 'total') {
-      runningTotal += value;
-    }
-    
-    return {
-      ...item,
-      start: item.type === 'total' ? 0 : start,
-      displayValue: item.type === 'total' ? value : Math.abs(value),
-      finalValue: item.type === 'total' ? value : runningTotal,
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || data.length === 0) return;
+
+    d3.select(container).select('svg').remove();
+
+    const margin = { top: 20, right: 30, bottom: 20, left: 130 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = data.length * 52;
+
+    const svg = d3
+      .select(container)
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Compute running totals
+    let runningTotal = 0;
+    const computed = data.map((item) => {
+      const start = runningTotal;
+      if (item.type !== 'total') {
+        runningTotal += item.value;
+      }
+      return {
+        ...item,
+        start: item.type === 'total' ? 0 : Math.min(start, start + item.value),
+        end: item.type === 'total' ? item.value : Math.max(start, start + item.value),
+      };
+    });
+
+    const maxVal = d3.max(computed, (d) => Math.max(Math.abs(d.start), Math.abs(d.end))) ?? 1;
+
+    const x = d3.scaleLinear().domain([0, maxVal * 1.15]).range([0, width]);
+
+    const y = d3
+      .scaleBand<number>()
+      .domain(computed.map((_, i) => i))
+      .range([0, height])
+      .padding(0.3);
+
+    const barColor = (type: string) => {
+      if (type === 'total') return '#2ED3A6';
+      if (type === 'positive') return '#6B8AFF';
+      return '#E05A5A';
     };
-  });
+
+    // Connector lines between bars
+    computed.forEach((d, i) => {
+      if (i < computed.length - 1 && d.type !== 'total') {
+        svg
+          .append('line')
+          .attr('x1', x(d.end))
+          .attr('y1', y(i)! + y.bandwidth())
+          .attr('x2', x(d.end))
+          .attr('y2', y(i + 1)!)
+          .attr('stroke', '#DEE2E6')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '3,3');
+      }
+    });
+
+    // Bars
+    const bars = svg
+      .selectAll('.bar')
+      .data(computed)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('y', (_, i) => y(i)!)
+      .attr('height', y.bandwidth())
+      .attr('rx', 4)
+      .attr('ry', 4)
+      .attr('fill', (d) => barColor(d.type))
+      .attr('opacity', (d) => (d.type === 'total' ? 1 : 0.85))
+      .attr('x', (d) => x(d.start))
+      .attr('width', 0);
+
+    bars
+      .transition()
+      .duration(600)
+      .delay((_, i) => i * 100)
+      .attr('width', (d) => Math.max(x(d.end) - x(d.start), 2));
+
+    // Labels (concept names)
+    svg
+      .selectAll('.label')
+      .data(computed)
+      .enter()
+      .append('text')
+      .attr('x', -8)
+      .attr('y', (_, i) => y(i)! + y.bandwidth() / 2)
+      .attr('dy', '0.35em')
+      .attr('text-anchor', 'end')
+      .attr('fill', '#00274C')
+      .attr('font-size', '12px')
+      .attr('font-family', 'system-ui, -apple-system, sans-serif')
+      .text((d) => d.label);
+
+    // Value labels inside bars
+    svg
+      .selectAll('.value')
+      .data(computed)
+      .enter()
+      .append('text')
+      .attr('x', (d) => x(d.start) + 8)
+      .attr('y', (_, i) => y(i)! + y.bandwidth() / 2)
+      .attr('dy', '0.35em')
+      .attr('fill', '#FFFFFF')
+      .attr('font-size', '11px')
+      .attr('font-weight', '600')
+      .attr('font-family', 'SF Mono, Monaco, monospace')
+      .attr('opacity', 0)
+      .text((d) => `${d.type === 'negative' ? '' : ''}${(d.value * 100).toFixed(0)}%`)
+      .transition()
+      .delay((_, i) => i * 100 + 300)
+      .duration(300)
+      .attr('opacity', 1);
+  }, [data]);
 
   return (
-    <div className="space-y-4">
-      {chartData.map((item, idx) => {
-        const widthPercent = (item.displayValue / maxValue) * 100;
-        const isPositive = item.type === 'positive' || item.type === 'total';
-        const color = item.type === 'total' 
-          ? '#2ED3A6' 
-          : item.type === 'positive' 
-            ? '#6B8AFF' 
-            : '#E05A5A';
-
-        return (
-          <div key={idx} className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-foreground">{item.label}</span>
-              <span className="text-foreground-secondary font-mono">
-                {item.type === 'negative' ? '-' : ''}{(Math.abs(item.value) * 100).toFixed(0)}%
-              </span>
-            </div>
-            
-            <div className="relative h-9 bg-surface rounded-lg overflow-hidden">
-              <motion.div
-                className="absolute top-0 h-full rounded-lg"
-                style={{
-                  backgroundColor: color,
-                  opacity: item.type === 'total' ? 1 : 0.8,
-                }}
-                initial={{ width: 0 }}
-                animate={{ width: `${widthPercent}%` }}
-                transition={{ 
-                  duration: 0.6, 
-                  delay: idx * 0.1,
-                  ease: [0.4, 0, 0.2, 1]
-                }}
-              />
-              
-              {/* Value label inside bar */}
-              <div className="absolute inset-0 flex items-center px-3">
-                <motion.span 
-                  className="text-xs font-mono text-background z-10"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: idx * 0.1 + 0.3 }}
-                >
-                  {(item.value * 100).toFixed(0)}%
-                </motion.span>
-              </div>
-            </div>
-
-            {/* Connector line to next item */}
-            {idx < chartData.length - 1 && item.type !== 'total' && (
-              <div className="flex justify-end pr-3 pt-1">
-                <div className="w-px h-3 bg-border"></div>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+    <div ref={containerRef} className="w-full" style={{ minHeight: data.length * 52 + 40 }} />
   );
 };
