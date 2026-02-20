@@ -1,3 +1,1 @@
-1. should open ai's api key be frontend or backend env?
-2. the open ai api key is named by OPENAI_API_KEY
-3. the database url is named DATABASE_URL
+The students page still doesn't show any students being available in the drop down for Student

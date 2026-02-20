@@ -17,8 +17,8 @@ export const GraphNode: React.FC<GraphNodeProps> = ({
 }) => {
   const getColor = (readiness: number) => {
     if (readiness >= 0.7) return '#FFCB05';
-    if (readiness >= 0.5) return '#F5B942';
-    return '#E05A5A';
+    if (readiness >= 0.5) return '#56B4E9';
+    return '#D55E00';
   };
 
   const color = getColor(node.readiness);

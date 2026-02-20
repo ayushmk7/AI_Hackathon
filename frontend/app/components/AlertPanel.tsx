@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { AlertTriangle, TrendingDown, Users } from 'lucide-react';
+import { AlertTriangle, Users } from 'lucide-react';
 import type { Alert } from '../data/mockData';
 
 interface AlertPanelProps {
@@ -16,8 +16,8 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alert, onClick }) => {
   };
 
   const severityColors = {
-    high: '#E05A5A',
-    medium: '#F5B942',
+    high: '#D55E00',
+    medium: '#56B4E9',
     low: '#9BA7B4',
   };
 
@@ -36,27 +36,9 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ alert, onClick }) => {
         <div className="flex-1 space-y-2">
           <h4 className="text-sm text-foreground">{alert.conceptName}</h4>
           <p className="text-xs text-foreground-secondary leading-relaxed">{alert.message}</p>
-          
-          <div className="flex items-center gap-4 pt-1">
-            <div className="flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-foreground-secondary" />
-              <span className="text-xs text-foreground-secondary">{alert.studentsAffected} students</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <TrendingDown className="w-3.5 h-3.5 text-foreground-secondary" />
-              <span className="text-xs text-foreground-secondary">{(alert.impact * 100).toFixed(0)}% impact</span>
-            </div>
-          </div>
-
-          {/* Impact intensity bar */}
-          <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ backgroundColor: severityColors[alert.severity] }}
-              initial={{ width: 0 }}
-              animate={{ width: `${alert.impact * 100}%` }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            />
+          <div className="flex items-center gap-1.5 pt-1">
+            <Users className="w-3.5 h-3.5 text-foreground-secondary" />
+            <span className="text-xs text-foreground-secondary">{alert.studentsAffected} students affected</span>
           </div>
         </div>
       </div>

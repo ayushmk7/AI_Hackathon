@@ -4,7 +4,8 @@ import { ConceptLensSlider } from '../components/ConceptLensSlider';
 import { AlertPanel } from '../components/AlertPanel';
 import { ConceptDAG } from '../components/ConceptDAG';
 import { D3Heatmap } from '../components/D3Heatmap';
-import { ChevronDown, TrendingUp, Users, AlertCircle } from 'lucide-react';
+import { InstructorTaskBar } from '../components/InstructorTaskBar';
+import { AlertCircle } from 'lucide-react';
 import { AppCtx } from '../App';
 import type { TraceConcept } from '../App';
 import { dashboardService } from '../services/dashboardService';
@@ -143,51 +144,19 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ onConc
     onConceptClick({ id: node.id, label: node.name, readiness: node.readiness });
   };
 
-  const handleParamSave = async () => {
-    if (!examId) return;
-    await parametersService.update(examId, { ...parameters, k: 4 });
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <div className="border-b border-border bg-white">
-        <div className="px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <h1 className="text-xl text-foreground font-medium">Instructor Dashboard</h1>
-            <div className="h-6 w-px bg-border" />
-            <div className="flex items-center gap-3">
-              <select
-                value={courseId ?? ''}
-                onChange={(e) => { setCourseId(e.target.value || null); setExamId(null); }}
-                className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
-              >
-                <option value="">{courses.length ? PH.SELECT_COURSE : PH.NO_DATA}</option>
-                {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-              <select
-                value={examId ?? ''}
-                onChange={(e) => setExamId(e.target.value || null)}
-                className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
-              >
-                <option value="">{exams.length ? PH.SELECT_EXAM : PH.NO_DATA}</option>
-                {exams.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg border border-border">
-              <Users className="w-4 h-4 text-foreground-secondary" />
-              <span className="text-sm text-foreground">{students.length} students</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg border border-border">
-              <TrendingUp className="w-4 h-4 text-foreground-secondary" />
-              <span className="text-sm text-foreground">{concepts.length} concepts</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <InstructorTaskBar
+        pageTitle="Dashboard"
+        courses={courses}
+        exams={exams}
+        courseId={courseId}
+        examId={examId}
+        onCourseChange={setCourseId}
+        onExamChange={setExamId}
+        studentCount={students.length}
+        conceptCount={concepts.length}
+      />
 
       {loading ? (
         <div className="flex items-center justify-center h-96">
@@ -201,17 +170,63 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ onConc
         <div className="p-8 space-y-6">
           {/* Parameters */}
           <motion.div className="bg-white border border-border rounded-xl p-6 shadow-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6">
               <h2 className="text-lg text-foreground">Analysis Parameters</h2>
-              <button onClick={handleParamSave} className="text-xs text-foreground-secondary hover:text-foreground flex items-center gap-1">
-                Save Parameters <ChevronDown className="w-3 h-3" />
-              </button>
+              <p className="text-xs text-foreground-secondary mt-1">
+                These weights control how the AI computes concept readiness: direct mastery, prerequisite penalties, and downstream boosts are combined into a single score per concept.
+              </p>
+            </div>
+            {/* Combined weight bar */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 text-xs text-foreground-secondary mb-2">
+                <span>Weight Distribution</span>
+              </div>
+              <div className="flex h-3 rounded-full overflow-hidden">
+                <div
+                  className="transition-all duration-300"
+                  style={{
+                    width: `${(parameters.alpha / (parameters.alpha + parameters.beta + parameters.gamma)) * 100}%`,
+                    backgroundColor: '#FFCB05',
+                  }}
+                  title={`Direct (α): ${(parameters.alpha * 100).toFixed(0)}%`}
+                />
+                <div
+                  className="transition-all duration-300"
+                  style={{
+                    width: `${(parameters.beta / (parameters.alpha + parameters.beta + parameters.gamma)) * 100}%`,
+                    backgroundColor: '#00274C',
+                  }}
+                  title={`Prerequisite (β): ${(parameters.beta * 100).toFixed(0)}%`}
+                />
+                <div
+                  className="transition-all duration-300"
+                  style={{
+                    width: `${(parameters.gamma / (parameters.alpha + parameters.beta + parameters.gamma)) * 100}%`,
+                    backgroundColor: '#56B4E9',
+                  }}
+                  title={`Downstream (γ): ${(parameters.gamma * 100).toFixed(0)}%`}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2 text-xs text-foreground-secondary">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#FFCB05' }} />
+                  <span>Direct (α) {(parameters.alpha * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#00274C' }} />
+                  <span>Prerequisite (β) {(parameters.beta * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#56B4E9' }} />
+                  <span>Downstream (γ) {(parameters.gamma * 100).toFixed(0)}%</span>
+                </div>
+              </div>
             </div>
             <div className="grid grid-cols-4 gap-6">
-              <ConceptLensSlider label="Direct Readiness Weight (α)" value={parameters.alpha} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, alpha: v })} description="Multiplies direct readiness in final score" />
-              <ConceptLensSlider label="Prerequisite Penalty Weight (β)" value={parameters.beta} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, beta: v })} description="Multiplies prerequisite penalty (subtracted)" />
-              <ConceptLensSlider label="Downstream Boost Weight (γ)" value={parameters.gamma} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, gamma: v })} description="Multiplies downstream boost in final score" />
-              <ConceptLensSlider label="Readiness Threshold" value={parameters.threshold} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, threshold: v })} description="Mastery cutoff score" />
+              <ConceptLensSlider label="Direct Weight (α)" value={parameters.alpha} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, alpha: v })} description="How much raw question performance counts" />
+              <ConceptLensSlider label="Prerequisite Penalty (β)" value={parameters.beta} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, beta: v })} description="Penalty when prerequisite topics are weak" />
+              <ConceptLensSlider label="Downstream Boost (γ)" value={parameters.gamma} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, gamma: v })} description="Bonus when downstream topics are strong" />
+              <ConceptLensSlider label="Readiness Threshold" value={parameters.threshold} min={0} max={1} step={0.05} onChange={(v) => setParameters({ ...parameters, threshold: v })} description="Score above which a concept is mastered" />
             </div>
           </motion.div>
 
@@ -239,7 +254,7 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ onConc
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-critical" />
-                  <h2 className="text-lg text-foreground">Priority Interventions</h2>
+                  <h2 className="text-lg text-foreground">Root Cause Analysis</h2>
                 </div>
                 {alerts.length > 0 ? (
                   <div className="space-y-3">
@@ -261,15 +276,15 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ onConc
             </motion.div>
           </div>
 
-          {/* Concept DAG */}
+          {/* Knowledge Graph */}
           <motion.div className="bg-white border border-border rounded-xl p-6 shadow-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <div className="space-y-4">
-              <h2 className="text-lg text-foreground">Dependency Graph</h2>
+              <h2 className="text-lg text-foreground">Knowledge Graph</h2>
               <div className="h-[600px]">
-                <ConceptDAG concepts={concepts} onNodeClick={handleNodeClick} selectedNodeId={selectedConceptId} />
+                <ConceptDAG examId={examId} concepts={concepts} onNodeClick={handleNodeClick} selectedNodeId={selectedConceptId} />
               </div>
               <div className="text-xs text-foreground-secondary text-center pt-2">
-                Click nodes to view root-cause trace
+                Click a node for root-cause analysis. Double-click to expand with AI-suggested subtopics.
               </div>
             </div>
           </motion.div>

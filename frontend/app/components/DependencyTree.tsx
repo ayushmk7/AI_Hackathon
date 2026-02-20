@@ -16,8 +16,8 @@ interface TreeNode {
 
 function readinessColor(r: number): string {
   if (r >= 0.7) return '#FFCB05';
-  if (r >= 0.5) return '#F5B942';
-  return '#E05A5A';
+  if (r >= 0.5) return '#56B4E9';
+  return '#D55E00';
 }
 
 function buildTree(concept: ConceptNode, allConcepts: ConceptNode[], visited: Set<string> = new Set()): TreeNode {
@@ -96,7 +96,7 @@ export const DependencyTree: React.FC<DependencyTreeProps> = ({ concept, allConc
       .attr('d', (d) => linkGenerator(d as any) ?? '')
       .attr('fill', 'none')
       .attr('stroke', (d) =>
-        d.target.data.readiness < 0.5 ? '#E05A5A' : '#FFCB05'
+        d.target.data.readiness < 0.5 ? '#D55E00' : '#FFCB05'
       )
       .attr('stroke-width', 2.5)
       .attr('opacity', 0)

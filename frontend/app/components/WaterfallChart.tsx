@@ -52,9 +52,9 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({ data }) => {
       .padding(0.3);
 
     const barColor = (type: string) => {
-      if (type === 'total') return '#2ED3A6';
-      if (type === 'positive') return '#6B8AFF';
-      return '#E05A5A';
+      if (type === 'total') return '#009E73';
+      if (type === 'positive') return '#56B4E9';
+      return '#D55E00';
     };
 
     // Connector lines between bars

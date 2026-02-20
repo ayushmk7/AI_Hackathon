@@ -16,8 +16,8 @@ interface SNode extends d3.SimulationNodeDatum {
 
 function readinessColor(r: number): string {
   if (r >= 0.7) return '#FFCB05';
-  if (r >= 0.5) return '#F5B942';
-  return '#E05A5A';
+  if (r >= 0.5) return '#56B4E9';
+  return '#D55E00';
 }
 
 export const StudentConceptGraph: React.FC<StudentConceptGraphProps> = ({

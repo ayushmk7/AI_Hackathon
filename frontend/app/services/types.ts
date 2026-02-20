@@ -27,10 +27,16 @@ export interface ValidationError {
   field?: string;
   message: string;
 }
+export interface StudentDetectionSummary {
+  student_count: number;
+  sample_ids: string[];
+  warnings: string[];
+}
 export interface ScoresUploadResponse {
   status: string;
   row_count: number;
   errors: ValidationError[];
+  student_detection?: StudentDetectionSummary;
 }
 export interface MappingUploadResponse {
   status: string;
@@ -58,6 +64,35 @@ export interface GraphUploadResponse {
   edge_count: number;
   is_dag: boolean;
   errors: ValidationError[];
+}
+export interface GraphRetrieveNode {
+  id: string;
+  label: string;
+  readiness?: number | null;
+  is_csv_observed: boolean;
+  depth: number;
+}
+export interface GraphRetrieveEdge {
+  source: string;
+  target: string;
+  weight: number;
+}
+export interface GraphRetrieveResponse {
+  status: string;
+  version: number;
+  nodes: GraphRetrieveNode[];
+  edges: GraphRetrieveEdge[];
+}
+export interface GraphExpandRequest {
+  concept_id: string;
+  max_depth?: number;
+  context?: string;
+}
+export interface GraphExpandResponse {
+  status: string;
+  new_nodes: GraphRetrieveNode[];
+  new_edges: GraphRetrieveEdge[];
+  suggestion_id?: string;
 }
 export interface GraphPatchRequest {
   add_nodes?: GraphNode[];

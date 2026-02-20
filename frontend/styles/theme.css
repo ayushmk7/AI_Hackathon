@@ -14,9 +14,9 @@
   
   --primary: #FFCB05;
   --primary-foreground: #00274C;
-  --warning: #F5B942;
+  --warning: #56B4E9;
   --warning-foreground: #00274C;
-  --critical: #E05A5A;
+  --critical: #D55E00;
   --critical-foreground: #FFFFFF;
   
   --border: #DEE2E6;
@@ -32,7 +32,7 @@
   --muted-foreground: #5C6B7D;
   --accent: #FFCB05;
   --accent-foreground: #00274C;
-  --destructive: #E05A5A;
+  --destructive: #D55E00;
   --destructive-foreground: #FFFFFF;
   --input: #F8F9FA;
   --ring: #FFCB05;
@@ -42,8 +42,8 @@
   
   --chart-1: #FFCB05;
   --chart-2: #00274C;
-  --chart-3: #F5B942;
-  --chart-4: #E05A5A;
+  --chart-3: #56B4E9;
+  --chart-4: #D55E00;
   --chart-5: #5C6B7D;
   
   --radius: 0.625rem;
@@ -65,12 +65,12 @@
   --foreground: #00274C;
   --foreground-secondary: #5C6B7D;
   
-  /* Accent Colors */
+  /* Accent Colors (color-blind-safe) */
   --primary: #FFCB05;
   --primary-foreground: #00274C;
-  --warning: #F5B942;
+  --warning: #56B4E9;
   --warning-foreground: #00274C;
-  --critical: #E05A5A;
+  --critical: #D55E00;
   --critical-foreground: #FFFFFF;
   
   /* UI Elements */
@@ -88,7 +88,7 @@
   --muted-foreground: #5C6B7D;
   --accent: #FFCB05;
   --accent-foreground: #00274C;
-  --destructive: #E05A5A;
+  --destructive: #D55E00;
   --destructive-foreground: #FFFFFF;
   --input: #F8F9FA;
   --ring: #FFCB05;
@@ -96,11 +96,11 @@
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   
-  /* Chart colors - UMich palette */
+  /* Chart colors (Okabe-Ito color-blind-safe) */
   --chart-1: #FFCB05;
   --chart-2: #00274C;
-  --chart-3: #F5B942;
-  --chart-4: #E05A5A;
+  --chart-3: #56B4E9;
+  --chart-4: #D55E00;
   --chart-5: #5C6B7D;
   
   --sidebar: #00274C;

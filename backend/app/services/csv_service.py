@@ -5,34 +5,55 @@ from typing import Optional
 
 import pandas as pd
 
-from app.schemas.schemas import ValidationError
+from app.schemas.schemas import StudentDetectionSummary, ValidationError
 from app.services.validation_service import validate_file_limits
+
+
+def detect_students(df: pd.DataFrame) -> StudentDetectionSummary:
+    """Analyze a validated scores DataFrame and return a student detection summary."""
+    student_ids = df["StudentID"].unique().tolist()
+    warnings: list[str] = []
+
+    if len(student_ids) == 0:
+        warnings.append("No students detected in the uploaded file.")
+    elif len(student_ids) < 3:
+        warnings.append(f"Only {len(student_ids)} student(s) detected — results may be unreliable.")
+
+    all_generic = all(str(sid).strip().isdigit() for sid in student_ids)
+    if all_generic and len(student_ids) > 0:
+        warnings.append("All StudentID values are plain numbers — verify these are the correct identifiers.")
+
+    return StudentDetectionSummary(
+        student_count=len(student_ids),
+        sample_ids=[str(sid) for sid in student_ids[:5]],
+        warnings=warnings,
+    )
 
 
 async def validate_scores_csv(
     file_content: bytes,
-) -> tuple[Optional[pd.DataFrame], list[ValidationError]]:
+) -> tuple[Optional[pd.DataFrame], list[ValidationError], Optional[StudentDetectionSummary]]:
     """Validate an exam scores CSV file per PRD §1.2.1.
 
     Required columns: StudentID, QuestionID, Score
     Optional column: MaxScore (defaults to 1.0)
 
     Returns:
-        Tuple of (validated DataFrame or None, list of validation errors).
+        Tuple of (validated DataFrame or None, list of validation errors, student detection summary or None).
     """
     errors: list[ValidationError] = []
 
     # --- File-level limits ---
     limit_errors = validate_file_limits(file_content)
     if limit_errors:
-        return None, limit_errors
+        return None, limit_errors, None
 
     # --- Parse CSV ---
     try:
         df = pd.read_csv(io.BytesIO(file_content))
     except Exception as e:
         errors.append(ValidationError(message=f"Failed to parse CSV: {str(e)}"))
-        return None, errors
+        return None, errors, None
 
     # --- Check required columns ---
     required = {"StudentID", "QuestionID", "Score"}
@@ -41,7 +62,7 @@ async def validate_scores_csv(
         errors.append(ValidationError(
             message=f"Missing required columns: {', '.join(sorted(missing))}"
         ))
-        return None, errors
+        return None, errors, None
 
     # --- Default MaxScore ---
     if "MaxScore" not in df.columns:
@@ -105,7 +126,7 @@ async def validate_scores_csv(
                     seen.add(key)
 
     if errors:
-        return None, errors
+        return None, errors, None
 
     # Ensure string columns
     df["StudentID"] = df["StudentID"].astype(str).str.strip()
@@ -113,7 +134,7 @@ async def validate_scores_csv(
     df["Score"] = df["Score"].astype(float)
     df["MaxScore"] = df["MaxScore"].astype(float)
 
-    return df, errors
+    return df, errors, detect_students(df)
 
 
 async def validate_mapping_csv(

@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ConceptLensButton } from '../components/ConceptLensButton';
 import { Network, TrendingDown, Brain, Users, Target, LineChart, ArrowRight, Shield } from 'lucide-react';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -11,70 +10,18 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated background elements */}
+      {/* Subtle background accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFCB05]/8 via-transparent to-[#00274C]/10" />
-        {/* Grid pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.080]">
-          <defs>
-            <pattern id="umich-grid" width="60" height="60" patternUnits="userSpaceOnUse">
-              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#00274C" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#umich-grid)" />
-        </svg>
-
-        {/* Abstract data visualization image */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFCB05]/5 via-transparent to-[#00274C]/5" />
         <motion.div
-          className="absolute top-16 right-8 w-[34rem] h-[34rem] opacity-20"
-          animate={{ 
-            y: [0, -40, 0],
-            rotate: [0, 5, 0]
-          }}
-          transition={{ 
-            duration: 12, 
-            repeat: Infinity,
-            ease: 'easeInOut'
-          }}
-        >
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1664526936810-ec0856d31b92?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMG5ldHdvcmslMjBub2Rlc3xlbnwxfHx8fDE3NzE1NjIxOTV8MA&ixlib=rb-4.1.0&q=80&w=1080"
-            alt="Network visualization"
-            className="w-full h-full object-cover rounded-3xl"
-          />
-        </motion.div>
-
-        {/* Neural network pattern */}
-        <motion.div
-          className="absolute bottom-24 left-8 w-[30rem] h-[30rem] opacity-20"
-          animate={{ 
-            y: [0, 30, 0],
-            rotate: [0, -5, 0]
-          }}
-          transition={{ 
-            duration: 10, 
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 1
-          }}
-        >
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1744130268219-3efd622e04fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuZXVyYWwlMjBuZXR3b3JrJTIwcGF0dGVybnxlbnwxfHx8fDE3NzE1NjIxOTZ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-            alt="Neural pattern"
-            className="w-full h-full object-cover rounded-3xl"
-          />
-        </motion.div>
-
-        {/* Maize accent circles */}
-        <motion.div
-          className="absolute top-1/4 left-1/3 w-72 h-72 rounded-full bg-[#FFCB05] opacity-[0.18] blur-3xl"
-          animate={{ scale: [1, 1.3, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/4 left-1/3 w-72 h-72 rounded-full bg-[#FFCB05] opacity-[0.10] blur-3xl"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/3 w-[30rem] h-[30rem] rounded-full bg-[#00274C] opacity-[0.14] blur-3xl"
-          animate={{ scale: [1.25, 1, 1.25] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute bottom-1/4 right-1/3 w-[28rem] h-[28rem] rounded-full bg-[#00274C] opacity-[0.08] blur-3xl"
+          animate={{ scale: [1.15, 1, 1.15] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
@@ -108,9 +55,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   </span>
                 </h1>
                 
-                <p className="text-xl text-foreground-secondary leading-relaxed max-w-2xl mx-auto">
-                  PreReq analyzes student assessment data to reveal conceptual weaknesses, 
-                  prerequisite gaps, and personalized intervention strategies backed by dependency-aware AI.
+                <p className="text-lg text-foreground-secondary leading-relaxed max-w-xl mx-auto">
+                  Upload exam scores, uncover prerequisite gaps, and get
+                  AI-driven intervention strategies — all in one place.
                 </p>
               </motion.div>
 
@@ -124,7 +71,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   variant="primary" 
                   type="button"
                   onClick={onStart}
-                  className="px-8 py-3 text-lg group inline-flex items-center justify-center"
+                  className="px-8 py-3 text-lg group inline-flex items-center justify-center gap-3"
                 >
                   Start Now
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -168,7 +115,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   <Network className="w-6 h-6 text-[#00274C]" />
                 </div>
                 <div>
-                  <h3 className="text-lg text-foreground mb-2">Dependency Mapping</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Dependency Mapping</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
                     See how topics connect so you can quickly spot what students should learn first.
                   </p>
@@ -184,7 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   <TrendingDown className="w-6 h-6 text-[#00274C]" />
                 </div>
                 <div>
-                  <h3 className="text-lg text-foreground mb-2">Root-Cause Analysis</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Root-Cause Analysis</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
                     Understand why scores drop by tracing problems back to the concepts students missed.
                   </p>
@@ -200,7 +147,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   <Brain className="w-6 h-6 text-[#00274C]" />
                 </div>
                 <div>
-                  <h3 className="text-lg text-foreground mb-2">Concept Heatmaps</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Concept Heatmaps</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
                     Get a clear visual snapshot of who is struggling and which topics need extra support.
                   </p>
@@ -216,7 +163,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   <Users className="w-6 h-6 text-[#00274C]" />
                 </div>
                 <div>
-                  <h3 className="text-lg text-foreground mb-2">Student Profiles</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Student Profiles</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
                     View easy-to-read student summaries with practical next-step recommendations.
                   </p>
@@ -232,7 +179,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   <Target className="w-6 h-6 text-[#00274C]" />
                 </div>
                 <div>
-                  <h3 className="text-lg text-foreground mb-2">Intervention Alerts</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Intervention Alerts</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
                     Receive timely alerts when a student may need help, along with suggested actions.
                   </p>
@@ -248,7 +195,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                   <LineChart className="w-6 h-6 text-[#00274C]" />
                 </div>
                 <div>
-                  <h3 className="text-lg text-foreground mb-2">Longitudinal Tracking</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Longitudinal Tracking</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
                     Track progress over time to see what is improving and what still needs attention.
                   </p>
@@ -259,17 +206,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-12 border-t border-border">
+        <div className="px-4 py-8 border-t border-border">
           <div className="max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <p className="text-sm text-foreground-secondary">
-                PreReq © 2026 - AI-Powered Assessment Intelligence for Higher Education
-              </p>
-              <div className="flex gap-6 text-sm text-foreground-secondary">
-                <a href="#" className="hover:text-[#FFCB05] transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-[#FFCB05] transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-[#FFCB05] transition-colors">Contact</a>
-              </div>
+            <div className="flex items-center">
+              <a href="mailto:contact@prereq.ai" className="text-sm text-foreground-secondary hover:text-[#FFCB05] transition-colors">
+                Contact
+              </a>
             </div>
           </div>
         </div>

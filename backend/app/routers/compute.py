@@ -139,13 +139,49 @@ async def compute_readiness(
                 question_concept_map[cid] = []
             question_concept_map[cid].append((qid, qcm_obj.weight))
 
-        # Load graph
+        # Load graph (auto-create and persist if none exists)
         if not graph_row:
-            all_concepts = set(question_concept_map.keys())
+            all_concepts = sorted(question_concept_map.keys())
+
+            # Derive edges from concept co-occurrence on shared questions.
+            # Two concepts that appear on the same question are related.
+            # Direction follows first-appearance order across sorted questions
+            # to guarantee a DAG structure.
+            question_to_concepts: dict[str, list[str]] = {}
+            for cid, q_list in question_concept_map.items():
+                for qid, _w in q_list:
+                    question_to_concepts.setdefault(qid, []).append(cid)
+
+            first_seen: dict[str, int] = {}
+            for idx, qid in enumerate(sorted(question_to_concepts.keys())):
+                for cid in question_to_concepts[qid]:
+                    if cid not in first_seen:
+                        first_seen[cid] = idx
+
+            edge_set: set[tuple[str, str]] = set()
+            for qid, concepts_on_q in question_to_concepts.items():
+                if len(concepts_on_q) < 2:
+                    continue
+                sorted_by_appearance = sorted(concepts_on_q, key=lambda c: first_seen.get(c, 999))
+                for i in range(len(sorted_by_appearance) - 1):
+                    src, tgt = sorted_by_appearance[i], sorted_by_appearance[i + 1]
+                    edge_set.add((src, tgt))
+
             graph_json = {
-                "nodes": [{"id": c, "label": c} for c in sorted(all_concepts)],
-                "edges": [],
+                "nodes": [{"id": c, "label": c} for c in all_concepts],
+                "edges": [
+                    {"source": s, "target": t, "weight": 0.5}
+                    for s, t in sorted(edge_set)
+                ],
             }
+            auto_graph = ConceptGraph(
+                exam_id=exam_id,
+                version=1,
+                graph_json=graph_json,
+            )
+            db.add(auto_graph)
+            await db.flush()
+            graph_version = 1
         else:
             graph_json = graph_row.graph_json
 

@@ -61,10 +61,17 @@ class ExamResponse(BaseModel):
 # Upload Responses
 # ---------------------------------------------------------------------------
 
+class StudentDetectionSummary(BaseModel):
+    student_count: int = 0
+    sample_ids: list[str] = []
+    warnings: list[str] = []
+
+
 class ScoresUploadResponse(BaseModel):
     status: str
     row_count: int = 0
     errors: list[ValidationError] = []
+    student_detection: Optional[StudentDetectionSummary] = None
 
 
 class MappingUploadResponse(BaseModel):
@@ -99,6 +106,40 @@ class GraphUploadResponse(BaseModel):
     edge_count: int = 0
     is_dag: bool = True
     errors: list[ValidationError] = []
+
+
+class GraphRetrieveNode(BaseModel):
+    id: str
+    label: str
+    readiness: Optional[float] = None
+    is_csv_observed: bool = True
+    depth: int = 0
+
+
+class GraphRetrieveEdge(BaseModel):
+    source: str
+    target: str
+    weight: float = 0.5
+
+
+class GraphRetrieveResponse(BaseModel):
+    status: str
+    version: int = 0
+    nodes: list[GraphRetrieveNode] = []
+    edges: list[GraphRetrieveEdge] = []
+
+
+class GraphExpandRequest(BaseModel):
+    concept_id: str
+    max_depth: int = Field(3, ge=1, le=5)
+    context: str = ""
+
+
+class GraphExpandResponse(BaseModel):
+    status: str
+    new_nodes: list[GraphRetrieveNode] = []
+    new_edges: list[GraphRetrieveEdge] = []
+    suggestion_id: Optional[UUID] = None
 
 
 class GraphPatchRequest(BaseModel):
@@ -281,6 +322,18 @@ class StudentTokenItem(BaseModel):
 
 class StudentTokenListResponse(BaseModel):
     tokens: list[StudentTokenItem] = []
+
+
+# ---------------------------------------------------------------------------
+# Direct student listing (instructor-facing, no tokens needed)
+# ---------------------------------------------------------------------------
+
+class StudentListItem(BaseModel):
+    student_id: str
+
+
+class StudentListResponse(BaseModel):
+    students: list[StudentListItem] = []
 
 
 # ---------------------------------------------------------------------------

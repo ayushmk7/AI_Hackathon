@@ -236,6 +236,74 @@ Suggest prerequisite relationships between these concepts. A prerequisite means 
 
 
 # ---------------------------------------------------------------------------
+# Feature B2: Subtopic Expansion for Knowledge Graph
+# ---------------------------------------------------------------------------
+
+SUBTOPIC_EXPAND_SYSTEM = """You are an expert curriculum designer building an educational knowledge graph. Given a concept and its context, generate a hierarchy of related subtopics that extend from it.
+
+IMPORTANT RULES:
+- Generate subtopics that represent genuine learning components of the parent concept
+- Each subtopic should have a unique ID (lowercase, hyphenated, e.g. "slope-formula")
+- Create edges showing prerequisite/dependency relationships between subtopics
+- Assign depth levels (1 = direct subtopic, 2 = sub-subtopic, etc.)
+- Do NOT duplicate concepts already in the existing graph
+- Only suggest topics a student would genuinely need to learn
+- Assign weights 0.0–1.0 indicating dependency strength
+
+Respond with valid JSON in this exact format:
+{
+  "nodes": [
+    {"id": "string", "label": "Human Readable Name", "depth": 1}
+  ],
+  "edges": [
+    {"source": "string", "target": "string", "weight": 0.5}
+  ]
+}"""
+
+
+async def suggest_subtopic_expansion(
+    concept_id: str,
+    max_depth: int = 3,
+    existing_concepts: list[str] | None = None,
+    context: str = "",
+) -> dict[str, Any]:
+    """Generate subtopic expansion for a concept node using OpenAI."""
+    existing_str = ", ".join(existing_concepts or [])
+    context_str = f"\nAdditional context: {context}" if context else ""
+
+    user_prompt = f"""Parent concept: {concept_id}
+Max expansion depth: {max_depth}
+Existing graph concepts (do NOT duplicate): {existing_str or '(none)'}
+{context_str}
+
+Generate a knowledge graph expansion from "{concept_id}" going up to {max_depth} layers deep. Include the parent concept as an edge source where appropriate."""
+
+    result = await _call_openai(SUBTOPIC_EXPAND_SYSTEM, user_prompt)
+
+    if result["error"]:
+        return {
+            "nodes": [],
+            "edges": [],
+            "model": result["model"],
+            "prompt_version": result["prompt_version"],
+            "token_usage": result["token_usage"],
+            "latency_ms": result["latency_ms"],
+            "error": result["error"],
+        }
+
+    output = result["parsed_output"] or {}
+    return {
+        "nodes": output.get("nodes", []),
+        "edges": output.get("edges", []),
+        "model": result["model"],
+        "prompt_version": result["prompt_version"],
+        "token_usage": result["token_usage"],
+        "latency_ms": result["latency_ms"],
+        "error": None,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Feature C: Intervention Narrative Drafting
 # ---------------------------------------------------------------------------
 

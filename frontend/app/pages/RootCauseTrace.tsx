@@ -45,8 +45,8 @@ export const RootCauseTrace: React.FC<RootCauseTraceProps> = ({ concept, examId,
 
   const getColor = (readiness: number) => {
     if (readiness >= 0.7) return '#FFCB05';
-    if (readiness >= 0.5) return '#F5B942';
-    return '#E05A5A';
+    if (readiness >= 0.5) return '#56B4E9';
+    return '#D55E00';
   };
 
   const waterfallData = trace ? traceWaterfallToChart(trace.waterfall) : [];
@@ -70,7 +70,7 @@ export const RootCauseTrace: React.FC<RootCauseTraceProps> = ({ concept, examId,
               Back to Dashboard
             </ConceptLensButton>
             <div className="h-6 w-px bg-border" />
-            <h1 className="text-xl text-foreground font-medium">Root-Cause Analysis</h1>
+            <h1 className="text-xl text-foreground font-medium">Topic by Topic Root Cause Analysis</h1>
           </div>
         </div>
       </div>
@@ -209,7 +209,7 @@ export const RootCauseTrace: React.FC<RootCauseTraceProps> = ({ concept, examId,
                         <div className="text-sm text-foreground mb-1">{iv.suggested_format}</div>
                         <div className="text-xs text-foreground-secondary leading-relaxed">{iv.rationale}</div>
                         <div className="text-xs text-foreground-secondary mt-2">
-                          Impact: {iv.impact.toFixed(2)} | {iv.students_affected} students affected
+                          {iv.students_affected} students affected
                         </div>
                       </div>
                     ))}

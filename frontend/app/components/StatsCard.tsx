@@ -35,7 +35,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         </div>
         {trend && (
           <div className="text-right">
-            <div className="text-xs" style={{ color: trend.value >= 0 ? '#2ED3A6' : '#E05A5A' }}>
+            <div className="text-xs" style={{ color: trend.value >= 0 ? '#009E73' : '#D55E00' }}>
               {trend.value >= 0 ? '+' : ''}{trend.value}%
             </div>
             <div className="text-[10px] text-foreground-secondary">{trend.label}</div>

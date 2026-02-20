@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'motion/react';
 import { ConfidenceBadge } from '../components/ConfidenceBadge';
-import { BookOpen, TrendingUp, Target, ChevronRight, ChevronDown, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
+import { InstructorTaskBar } from '../components/InstructorTaskBar';
+import { BookOpen, TrendingUp, Target, ChevronRight, Mail, Phone, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { StudentConceptGraph } from '../components/StudentConceptGraph';
 import { AppCtx } from '../App';
 import { reportsService } from '../services/reportsService';
+import type { StudentListItem } from '../services/reportsService';
 import { coursesService } from '../services/coursesService';
 import { examsService } from '../services/examsService';
 import { PH } from '../constants/placeholders';
-import type { CourseResponse, ExamResponse, StudentReportResponse, StudentTokenItem } from '../services/types';
+import type { CourseResponse, ExamResponse, StudentReportResponse } from '../services/types';
 
 const HIGH_READINESS = 0.7;
 
@@ -47,8 +49,10 @@ export const StudentReport: React.FC = () => {
 
   const [courses, setCourses] = useState<CourseResponse[]>([]);
   const [exams, setExams] = useState<ExamResponse[]>([]);
-  const [tokens, setTokens] = useState<StudentTokenItem[]>([]);
-  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [students, setStudents] = useState<StudentListItem[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [studentsError, setStudentsError] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [report, setReport] = useState<StudentReportResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedConcept, setExpandedConcept] = useState<string | null>(null);
@@ -61,18 +65,37 @@ export const StudentReport: React.FC = () => {
   }, [courseId]);
 
   useEffect(() => {
-    if (examId) reportsService.listTokens(examId).then(r => setTokens(r.tokens)).catch(() => setTokens([]));
-    else setTokens([]);
+    if (!examId) {
+      setStudents([]);
+      setSelectedStudentId('');
+      setStudentsError(null);
+      return;
+    }
+    setStudentsLoading(true);
+    setSelectedStudentId('');
+    setStudentsError(null);
+    reportsService.listStudents(examId)
+      .then(r => {
+        setStudents(r.students);
+        if (r.students.length === 0) {
+          setStudentsError('No students found. Run Compute first to generate student results.');
+        }
+      })
+      .catch((err) => {
+        setStudents([]);
+        setStudentsError(err?.message ?? 'Failed to load students. Check that Compute has been run.');
+      })
+      .finally(() => setStudentsLoading(false));
   }, [examId]);
 
   useEffect(() => {
-    if (!selectedToken) { setReport(null); return; }
+    if (!selectedStudentId || !examId) { setReport(null); return; }
     setLoading(true);
-    reportsService.getByToken(selectedToken)
+    reportsService.getByStudentId(examId, selectedStudentId)
       .then(setReport)
       .catch(() => setReport(null))
       .finally(() => setLoading(false));
-  }, [selectedToken]);
+  }, [selectedStudentId, examId]);
 
   const concepts = report ? reportToConcepts(report) : [];
   const studentReadiness: Record<string, number> = {};
@@ -85,13 +108,21 @@ export const StudentReport: React.FC = () => {
     ? Math.round((concepts.reduce((s, c) => s + (studentReadiness[c.id] ?? 0), 0) / concepts.length) * 100)
     : 0;
 
+  const studentSelectorPlaceholder = !examId
+    ? 'Select an exam first'
+    : studentsLoading
+    ? 'Loading students...'
+    : students.length > 0
+    ? PH.SELECT_STUDENT
+    : 'Run Compute to see students';
+
   const studyPlan = report?.study_plan ?? [];
   const weakConcepts = report?.top_weak_concepts ?? [];
 
   const getColor = (readiness: number) => {
     if (readiness >= 0.7) return '#FFCB05';
-    if (readiness >= 0.5) return '#F5B942';
-    return '#E05A5A';
+    if (readiness >= 0.5) return '#56B4E9';
+    return '#D55E00';
   };
 
   const getConfidenceLevel = (readiness: number): 'high' | 'medium' | 'low' => {
@@ -102,46 +133,44 @@ export const StudentReport: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-border">
-        <div className="px-8 py-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex-1">
-                <h1 className="text-2xl text-foreground mb-3">Student Concept Readiness Report</h1>
-                <div className="flex items-center gap-3">
-                  <select value={courseId ?? ''} onChange={(e) => { setCourseId(e.target.value || null); setExamId(null); }} className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]">
-                    <option value="">{courses.length ? PH.SELECT_COURSE : PH.NO_DATA}</option>
-                    {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <select value={examId ?? ''} onChange={(e) => setExamId(e.target.value || null)} className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]">
-                    <option value="">{exams.length ? PH.SELECT_EXAM : PH.NO_DATA}</option>
-                    {exams.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-                  </select>
-                </div>
-              </div>
+      <InstructorTaskBar
+        pageTitle="Students"
+        courses={courses}
+        exams={exams}
+        courseId={courseId}
+        examId={examId}
+        onCourseChange={setCourseId}
+        onExamChange={setExamId}
+        studentCount={concepts.length > 0 ? 1 : undefined}
+        conceptCount={concepts.length || undefined}
+      />
+      {/* Student selector row */}
+      <div className="bg-white border-b border-border px-8 py-3 flex items-center gap-4">
+        <label className="text-xs font-medium text-foreground-secondary flex-shrink-0">Student</label>
+        <select
+          value={selectedStudentId}
+          onChange={(e) => setSelectedStudentId(e.target.value)}
+          disabled={studentsLoading || !examId || students.length === 0}
+          className="bg-surface border border-border rounded-lg px-4 py-2 text-sm text-foreground appearance-none bg-[length:16px_16px] bg-[position:right_12px_center] bg-no-repeat bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] focus:outline-none focus:ring-2 focus:ring-[#FFCB05] pr-10 min-w-[220px] disabled:opacity-60"
+        >
+          <option value="">{studentSelectorPlaceholder}</option>
+          {students.map(s => (
+            <option key={s.student_id} value={s.student_id}>{s.student_id}</option>
+          ))}
+        </select>
 
-              {/* Student token selector */}
-              <div>
-                <label className="text-xs text-foreground-secondary mb-1 block">Student</label>
-                <select
-                  value={selectedToken}
-                  onChange={(e) => setSelectedToken(e.target.value)}
-                  className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] min-w-[200px]"
-                >
-                  <option value="">{tokens.length ? PH.SELECT_STUDENT : PH.NO_STUDENTS}</option>
-                  {tokens.map(t => <option key={t.token} value={t.token}>{t.student_id}</option>)}
-                </select>
-              </div>
-            </div>
-
-            {report && (
-              <div className="text-sm text-foreground-secondary">
-                Overall Progress: <span className="text-[#00274C] font-medium">{overallProgress}%</span>
-              </div>
-            )}
+        {studentsError && !studentsLoading && (
+          <div className="flex items-center gap-1.5 text-xs text-[#D55E00]">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>{studentsError}</span>
           </div>
-        </div>
+        )}
+
+        {report && (
+          <span className="ml-auto text-sm text-foreground-secondary flex-shrink-0">
+            Overall Progress: <span className="text-[#00274C] font-medium">{overallProgress}%</span>
+          </span>
+        )}
       </div>
 
       {loading ? (
@@ -150,7 +179,13 @@ export const StudentReport: React.FC = () => {
         </div>
       ) : !report ? (
         <div className="flex items-center justify-center h-96">
-          <div className="text-foreground-secondary">{selectedToken ? PH.NO_DATA : 'Select a course, exam, and student to view report'}</div>
+          <div className="text-foreground-secondary">
+            {!examId
+              ? 'Select a course and exam above to view student reports'
+              : students.length === 0
+              ? 'No computed results yet — run Compute on the Upload page first'
+              : 'Select a student above to view their report'}
+          </div>
         </div>
       ) : (
         <div className="px-8 py-8">
@@ -169,27 +204,27 @@ export const StudentReport: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
-              <motion.div className="flex-1 bg-gradient-to-br from-[#F5B942]/10 to-[#F5B942]/5 border border-[#F5B942]/30 rounded-xl p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <motion.div className="flex-1 bg-gradient-to-br from-[#56B4E9]/10 to-[#56B4E9]/5 border border-[#56B4E9]/30 rounded-xl p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="text-xs text-foreground-secondary uppercase tracking-wide mb-2">To Improve</div>
                     <div className="text-4xl text-[#00274C] font-medium mb-1">{weakConcepts.length}</div>
                     <p className="text-xs text-foreground-secondary">Concepts needing additional practice</p>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-[#F5B942]/20 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-[#F5B942]" />
+                  <div className="w-12 h-12 rounded-xl bg-[#56B4E9]/20 flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-[#56B4E9]" />
                   </div>
                 </div>
               </motion.div>
-              <motion.div className="flex-1 bg-gradient-to-br from-[#E05A5A]/10 to-[#E05A5A]/5 border border-[#E05A5A]/30 rounded-xl p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <motion.div className="flex-1 bg-gradient-to-br from-[#D55E00]/10 to-[#D55E00]/5 border border-[#D55E00]/30 rounded-xl p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="text-xs text-foreground-secondary uppercase tracking-wide mb-2">Priority Focus</div>
                     <div className="text-4xl text-[#00274C] font-medium mb-1">{studyPlan.length}</div>
                     <p className="text-xs text-foreground-secondary">Study plan items</p>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-[#E05A5A]/20 flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-[#E05A5A]" />
+                  <div className="w-12 h-12 rounded-xl bg-[#D55E00]/20 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-[#D55E00]" />
                   </div>
                 </div>
               </motion.div>

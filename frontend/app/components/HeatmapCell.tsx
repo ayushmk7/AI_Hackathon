@@ -19,8 +19,8 @@ export const HeatmapCell: React.FC<HeatmapCellProps> = ({ value, onClick, row, c
 
   const getBorderColor = (val: number) => {
     if (val >= 0.7) return '#FFCB05';
-    if (val >= 0.5) return '#F5B942';
-    return '#E05A5A';
+    if (val >= 0.5) return '#56B4E9';
+    return '#D55E00';
   };
 
   return (

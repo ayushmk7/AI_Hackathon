@@ -49,7 +49,7 @@ async def upload_scores(
         raise HTTPException(status_code=404, detail="Exam not found")
 
     content = await file.read()
-    df, errors = await validate_scores_csv(content)
+    df, errors, student_detection = await validate_scores_csv(content)
 
     if errors:
         return ScoresUploadResponse(status="error", errors=errors)
@@ -85,7 +85,11 @@ async def upload_scores(
 
     await db.flush()
 
-    return ScoresUploadResponse(status="success", row_count=len(df))
+    return ScoresUploadResponse(
+        status="success",
+        row_count=len(df),
+        student_detection=student_detection,
+    )
 
 
 # ---------------------------------------------------------------------------

@@ -326,57 +326,57 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
         {/* Content area */}
         <div className="bg-white border border-border rounded-xl p-8 min-h-[500px] shadow-sm">
           {/* Course / Exam selectors (always visible) */}
-          <div className="flex items-center gap-3 mb-6 pb-6 border-b border-border">
-            <div className="flex-1">
-              <label className="text-xs text-foreground-secondary mb-1 block">Course</label>
+          <div className="flex items-start gap-6 mb-6 pb-6 border-b border-border">
+            <div className="flex-1 space-y-2">
+              <label className="text-xs font-medium text-foreground-secondary block">Course</label>
               <select
                 value={selectedCourseId}
                 onChange={(e) => { setSelectedCourseId(e.target.value); setSelectedExamId(''); }}
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm text-foreground appearance-none bg-[length:16px_16px] bg-[position:right_12px_center] bg-no-repeat bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] focus:outline-none focus:ring-2 focus:ring-[#FFCB05] pr-10"
               >
                 <option value="">{courses.length ? PH.SELECT_COURSE : PH.NO_DATA}</option>
                 {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <input
                 type="text"
-                placeholder="...or create new course"
+                placeholder="Or create new course"
                 value={newCourseName}
                 onChange={(e) => { setNewCourseName(e.target.value); setSelectedCourseId(''); }}
-                className="w-full mt-1 bg-surface border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
               />
               <button
                 type="button"
                 onClick={handleCreateCourse}
                 disabled={isCreatingCourse || !newCourseName.trim()}
-                className="mt-2 text-xs px-3 py-1.5 rounded-md bg-[#00274C] text-white hover:bg-[#001a33] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-xs px-3 py-1.5 rounded-md bg-[#00274C] text-white hover:bg-[#001a33] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isCreatingCourse ? 'Creating Course...' : 'Create New Course'}
+                {isCreatingCourse ? 'Creating...' : 'Create Course'}
               </button>
             </div>
-            <div className="flex-1">
-              <label className="text-xs text-foreground-secondary mb-1 block">Exam</label>
+            <div className="flex-1 space-y-2">
+              <label className="text-xs font-medium text-foreground-secondary block">Exam</label>
               <select
                 value={selectedExamId}
                 onChange={(e) => setSelectedExamId(e.target.value)}
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm text-foreground appearance-none bg-[length:16px_16px] bg-[position:right_12px_center] bg-no-repeat bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] focus:outline-none focus:ring-2 focus:ring-[#FFCB05] pr-10"
               >
-                <option value="">{exams.length ? PH.SELECT_EXAM : PH.NO_DATA}</option>
+                <option value="">{PH.SELECT_EXAM}</option>
                 {exams.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
               </select>
               <input
                 type="text"
-                placeholder="...or create new exam"
+                placeholder="Or create new exam"
                 value={newExamName}
                 onChange={(e) => { setNewExamName(e.target.value); setSelectedExamId(''); }}
-                className="w-full mt-1 bg-surface border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05]"
               />
               <button
                 type="button"
                 onClick={handleCreateExam}
                 disabled={isCreatingExam || !newExamName.trim()}
-                className="mt-2 text-xs px-3 py-1.5 rounded-md bg-[#00274C] text-white hover:bg-[#001a33] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-xs px-3 py-1.5 rounded-md bg-[#00274C] text-white hover:bg-[#001a33] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isCreatingExam ? 'Creating Exam...' : 'Create New Exam'}
+                {isCreatingExam ? 'Creating...' : 'Create Exam'}
               </button>
             </div>
           </div>
@@ -440,16 +440,36 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                       <CheckCircle2 className="w-5 h-5 text-[#00274C] mt-0.5" />
                       <div className="space-y-2 flex-1">
                         <div className="text-sm text-foreground font-medium">Scores uploaded successfully</div>
-                        <div className="grid grid-cols-2 gap-3 mt-3">
+                        <div className="grid grid-cols-3 gap-3 mt-3">
                           <div className="bg-white rounded-lg p-3 text-center">
                             <div className="text-lg text-[#00274C] font-medium">{scoresResult.row_count.toLocaleString()}</div>
                             <div className="text-xs text-foreground-secondary">Rows</div>
+                          </div>
+                          <div className="bg-white rounded-lg p-3 text-center">
+                            <div className="text-lg text-[#00274C] font-medium">{scoresResult.student_detection?.student_count ?? '—'}</div>
+                            <div className="text-xs text-foreground-secondary">Students Detected</div>
                           </div>
                           <div className="bg-white rounded-lg p-3 text-center">
                             <div className="text-lg text-[#00274C] font-medium">0</div>
                             <div className="text-xs text-foreground-secondary">Errors</div>
                           </div>
                         </div>
+                        {scoresResult.student_detection?.sample_ids && scoresResult.student_detection.sample_ids.length > 0 && (
+                          <div className="text-xs text-foreground-secondary mt-2">
+                            Sample IDs: {scoresResult.student_detection.sample_ids.join(', ')}
+                            {(scoresResult.student_detection.student_count ?? 0) > 5 && ' ...'}
+                          </div>
+                        )}
+                        {scoresResult.student_detection?.warnings && scoresResult.student_detection.warnings.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {scoresResult.student_detection.warnings.map((w, i) => (
+                              <div key={i} className="flex items-start gap-2 text-xs text-[#D55E00]">
+                                <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                                <span>{w}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -511,21 +531,22 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
             {currentStep === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
                 <h2 className="text-xl text-foreground">Configure Analysis Parameters</h2>
-                <p className="text-sm text-foreground-secondary">Set weights for readiness calculation algorithm</p>
+                <p className="text-sm text-foreground-secondary">Adjust how direct mastery, prerequisite gaps, and downstream knowledge are weighted to compute each concept's readiness score.</p>
 
                 <div className="space-y-6">
                   {[
-                    { label: 'Direct Mastery Weight (α)', value: alpha, set: setAlpha },
-                    { label: 'Prerequisite Weight (β)', value: beta, set: setBeta },
-                    { label: 'Downstream Weight (γ)', value: gamma, set: setGamma },
-                    { label: 'Readiness Threshold', value: threshold, set: setThreshold },
-                  ].map(({ label, value, set }) => (
+                    { label: 'Direct Mastery Weight (α)', value: alpha, set: setAlpha, hint: 'How much raw question performance counts' },
+                    { label: 'Prerequisite Weight (β)', value: beta, set: setBeta, hint: 'Penalty when prerequisite topics are weak' },
+                    { label: 'Downstream Weight (γ)', value: gamma, set: setGamma, hint: 'Bonus when downstream topics are strong' },
+                    { label: 'Readiness Threshold', value: threshold, set: setThreshold, hint: 'Score above which a concept is mastered' },
+                  ].map(({ label, value, set, hint }) => (
                     <div key={label} className="space-y-3 bg-surface border border-border rounded-xl p-5">
                       <div className="flex items-center justify-between">
                         <label className="text-sm text-foreground font-medium">{label}</label>
                         <span className="text-sm text-[#00274C] font-mono bg-[#FFCB05]/10 px-3 py-1 rounded-lg">{value.toFixed(2)}</span>
                       </div>
                       <input type="range" min="0" max="1" step="0.05" value={value} onChange={(e) => set(Number(e.target.value))} className="w-full accent-[#FFCB05]" />
+                      <p className="text-xs text-foreground-secondary">{hint}</p>
                     </div>
                   ))}
                   <div className="space-y-3 bg-surface border border-border rounded-xl p-5">
@@ -561,7 +582,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                     </div>
                     <h2 className="text-xl text-foreground text-center">Ready to Compute</h2>
                     <p className="text-sm text-foreground-secondary text-center max-w-md">
-                      All data validated. Click below to compute concept readiness scores and generate intervention recommendations.
+                      The AI propagates scores through the dependency graph, applies your parameter weights, and generates per-concept readiness scores with targeted intervention recommendations.
                     </p>
                   </>
                 ) : (
