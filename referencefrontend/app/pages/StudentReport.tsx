@@ -2,26 +2,30 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ConfidenceBadge } from '../components/ConfidenceBadge';
 import { BookOpen, TrendingUp, Target, ChevronRight, ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
-import { concepts, students, getStudyPlan } from '../data/mockData';
+import { concepts, students, getStudyPlan, courses, exams, semesters } from '../data/mockData';
 import { StudentConceptGraph } from '../components/StudentConceptGraph';
 
-const mockStudents = [
-  { id: 's1', name: 'Emma Johnson', email: 'emma.j@umich.edu' },
-  { id: 's2', name: 'Michael Chen', email: 'mchen@umich.edu' },
-  { id: 's3', name: 'Sarah Williams', email: 'swilliams@umich.edu' },
-  { id: 's4', name: 'James Martinez', email: 'jmartinez@umich.edu' },
-  { id: 's5', name: 'Olivia Taylor', email: 'otaylor@umich.edu' },
-];
+const HIGH_READINESS = 0.7;
 
 export const StudentReport: React.FC = () => {
   const [expandedConcept, setExpandedConcept] = useState<string | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState(mockStudents[0]);
-  const [selectedClass, setSelectedClass] = useState('MATH 2420 - Calculus II');
-  const [selectedExam, setSelectedExam] = useState('Midterm Exam');
-  const [selectedSemester, setSelectedSemester] = useState('Spring 2026');
+  const [selectedStudent, setSelectedStudent] = useState(students[0] ?? null);
+  const [selectedClass, setSelectedClass] = useState(courses[0] ?? '');
+  const [selectedExam, setSelectedExam] = useState(exams[0] ?? '');
+  const [selectedSemester, setSelectedSemester] = useState(semesters[0] ?? '');
   const [showDropdown, setShowDropdown] = useState(false);
-  
-  const studyPlan = getStudyPlan(selectedStudent.id);
+
+  const studyPlan = selectedStudent ? getStudyPlan(selectedStudent.id) : [];
+  const studentReadiness = selectedStudent?.conceptReadiness ?? {};
+  const strongConceptCount = concepts.filter(
+    (c) => (studentReadiness[c.id] ?? 0) >= HIGH_READINESS
+  ).length;
+  const overallProgress =
+    concepts.length > 0
+      ? Math.round(
+          (concepts.reduce((sum, c) => sum + (studentReadiness[c.id] ?? 0), 0) / concepts.length) * 100
+        )
+      : 0;
 
   const getColor = (readiness: number) => {
     if (readiness >= 0.7) return '#FFCB05';
@@ -47,35 +51,35 @@ export const StudentReport: React.FC = () => {
                 
                 {/* Filters */}
                 <div className="flex items-center gap-3">
-                  <select 
+                  <select
                     value={selectedClass}
                     onChange={(e) => setSelectedClass(e.target.value)}
                     className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] focus:border-[#FFCB05]"
                   >
-                    <option>MATH 2420 - Calculus II</option>
-                    <option>MATH 1410 - Calculus I</option>
-                    <option>MATH 3210 - Linear Algebra</option>
+                    <option value="">{courses.length ? 'Select course' : '—'}</option>
+                    {courses.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
-                  
-                  <select 
+                  <select
                     value={selectedExam}
                     onChange={(e) => setSelectedExam(e.target.value)}
                     className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] focus:border-[#FFCB05]"
                   >
-                    <option>Midterm Exam</option>
-                    <option>Final Exam</option>
-                    <option>Quiz 1</option>
-                    <option>Quiz 2</option>
+                    <option value="">{exams.length ? 'Select exam' : '—'}</option>
+                    {exams.map((e) => (
+                      <option key={e} value={e}>{e}</option>
+                    ))}
                   </select>
-                  
-                  <select 
+                  <select
                     value={selectedSemester}
                     onChange={(e) => setSelectedSemester(e.target.value)}
                     className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] focus:border-[#FFCB05]"
                   >
-                    <option>Spring 2026</option>
-                    <option>Fall 2025</option>
-                    <option>Spring 2025</option>
+                    <option value="">{semesters.length ? 'Select semester' : '—'}</option>
+                    {semesters.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -84,23 +88,25 @@ export const StudentReport: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3 hover:border-[#FFCB05] transition-colors"
+                  disabled={!students.length}
+                  className="flex items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3 hover:border-[#FFCB05] transition-colors disabled:opacity-50"
                 >
                   <div className="text-left">
                     <div className="text-xs text-foreground-secondary mb-0.5">Viewing Report For</div>
-                    <div className="text-sm text-foreground font-medium">{selectedStudent.name}</div>
+                    <div className="text-sm text-foreground font-medium">
+                      {selectedStudent?.name ?? (students.length ? 'Select student' : '—')}
+                    </div>
                   </div>
                   <ChevronDown className={`w-4 h-4 text-foreground-secondary transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
                 </button>
-                
-                {showDropdown && (
+                {showDropdown && students.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="absolute right-0 top-full mt-2 w-64 bg-white border border-border rounded-lg shadow-lg overflow-hidden z-10"
                   >
                     <div className="p-2 space-y-1">
-                      {mockStudents.map(student => (
+                      {students.map((student) => (
                         <button
                           key={student.id}
                           onClick={() => {
@@ -108,13 +114,12 @@ export const StudentReport: React.FC = () => {
                             setShowDropdown(false);
                           }}
                           className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                            selectedStudent.id === student.id
+                            selectedStudent?.id === student.id
                               ? 'bg-[#FFCB05]/10 text-[#00274C]'
                               : 'hover:bg-surface text-foreground'
                           }`}
                         >
                           <div className="text-sm font-medium">{student.name}</div>
-                          <div className="text-xs text-foreground-secondary">{student.email}</div>
                         </button>
                       ))}
                     </div>
@@ -124,7 +129,7 @@ export const StudentReport: React.FC = () => {
             </div>
             
             <div className="text-sm text-foreground-secondary">
-              Overall Progress: <span className="text-[#00274C] font-medium">68%</span>
+              Overall Progress: <span className="text-[#00274C] font-medium">{overallProgress}%</span>
             </div>
           </div>
         </div>
@@ -143,7 +148,7 @@ export const StudentReport: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-xs text-foreground-secondary uppercase tracking-wide mb-2">Strong Concepts</div>
-                  <div className="text-4xl text-[#00274C] font-medium mb-1">5</div>
+                  <div className="text-4xl text-[#00274C] font-medium mb-1">{strongConceptCount}</div>
                   <p className="text-xs text-foreground-secondary">
                     Concepts mastered with high readiness
                   </p>
@@ -208,10 +213,7 @@ export const StudentReport: React.FC = () => {
             <div className="bg-surface rounded-lg overflow-hidden" style={{ height: '400px' }}>
               <StudentConceptGraph
                 concepts={concepts}
-                studentReadiness={
-                  students.find((s) => s.id === selectedStudent.id)?.conceptReadiness ??
-                  students[0].conceptReadiness
-                }
+                studentReadiness={selectedStudent?.conceptReadiness ?? {}}
               />
             </div>
             <p className="text-xs text-foreground-secondary text-center mt-4">
@@ -351,59 +353,30 @@ export const StudentReport: React.FC = () => {
           >
             <h3 className="text-lg font-medium mb-4">Need Help? Contact Your Instructor</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Instructor Info */}
               <div className="space-y-3">
                 <div className="text-sm opacity-75 uppercase tracking-wide">Instructor</div>
-                <div className="text-xl font-medium">Dr. Sarah Mitchell</div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Mail className="w-4 h-4" />
-                    <a href="mailto:smitchell@umich.edu" className="hover:text-[#FFCB05] transition-colors">
-                      smitchell@umich.edu
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Phone className="w-4 h-4" />
-                    <span>(734) 647-3000</span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-90">
-                    <MapPin className="w-4 h-4" />
-                    <span>East Hall 2845</span>
-                  </div>
+                <div className="text-xl font-medium">—</div>
+                <div className="space-y-2 text-sm opacity-90">
+                  <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span>—</span></div>
+                  <div className="flex items-center gap-2"><Phone className="w-4 h-4" /><span>—</span></div>
+                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /><span>—</span></div>
                 </div>
-                <div className="pt-2 text-xs opacity-75">
-                  Office Hours: Mon/Wed 2-4pm, Fri 10am-12pm
-                </div>
+                <div className="pt-2 text-xs opacity-75">Office Hours: —</div>
               </div>
-
-              {/* TA Info */}
               <div className="space-y-3">
                 <div className="text-sm opacity-75 uppercase tracking-wide">Teaching Assistant</div>
-                <div className="text-xl font-medium">Alex Chen</div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Mail className="w-4 h-4" />
-                    <a href="mailto:achen@umich.edu" className="hover:text-[#FFCB05] transition-colors">
-                      achen@umich.edu
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Phone className="w-4 h-4" />
-                    <span>(734) 647-3001</span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-90">
-                    <MapPin className="w-4 h-4" />
-                    <span>East Hall 1820</span>
-                  </div>
+                <div className="text-xl font-medium">—</div>
+                <div className="space-y-2 text-sm opacity-90">
+                  <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span>—</span></div>
+                  <div className="flex items-center gap-2"><Phone className="w-4 h-4" /><span>—</span></div>
+                  <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /><span>—</span></div>
                 </div>
-                <div className="pt-2 text-xs opacity-75">
-                  Office Hours: Tue/Thu 3-5pm
-                </div>
+                <div className="pt-2 text-xs opacity-75">Office Hours: —</div>
               </div>
             </div>
             <div className="mt-6 pt-6 border-t border-white/20">
               <p className="text-sm opacity-90">
-                Don't hesitate to reach out! We're here to help you succeed. Schedule a one-on-one meeting 
+                Don't hesitate to reach out! We're here to help you succeed. Schedule a one-on-one meeting
                 or drop by during office hours to discuss your progress and study plan.
               </p>
             </div>

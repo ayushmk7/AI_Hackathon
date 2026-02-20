@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ConceptLensButton } from '../components/ConceptLensButton';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { Upload, CheckCircle2, ArrowRight, FileText, Network, Settings, Zap, Download, Table, X } from 'lucide-react';
+import { concepts, students } from '../data/mockData';
 
 interface UploadWizardProps {
   onComplete: () => void;
@@ -15,10 +16,17 @@ const steps = [
   { id: 4, name: 'Compute', icon: Zap },
 ];
 
+const dependencyCount = concepts.reduce((sum, c) => sum + c.prerequisites.length, 0);
+
 export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [uploadSummary, setUploadSummary] = useState<{ rowCount: number; conceptCount: number; errorCount: number }>({
+    rowCount: 0,
+    conceptCount: 0,
+    errorCount: 0,
+  });
 
   const handleNext = () => {
     if (currentStep === 4) {
@@ -33,7 +41,12 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
   };
 
   const handleFileUpload = () => {
-    setUploadedFile('exam_scores_spring2026.csv');
+    setUploadedFile('exam_scores.csv');
+    setUploadSummary({
+      rowCount: students.length,
+      conceptCount: concepts.length,
+      errorCount: 0,
+    });
   };
 
   return (
@@ -126,7 +139,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                       <div>
                         <div className="text-foreground font-medium">{uploadedFile}</div>
                         <div className="text-sm text-foreground-secondary mt-1">
-                          1,247 rows • 12 concepts • Valid format
+                          {uploadSummary.rowCount.toLocaleString()} rows • {uploadSummary.conceptCount} concepts • Valid format
                         </div>
                       </div>
                       <button 
@@ -167,19 +180,19 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                       <div className="space-y-2 flex-1">
                         <div className="text-sm text-foreground font-medium">File validated successfully</div>
                         <div className="text-xs text-foreground-secondary">
-                          Expected format detected: Student ID column followed by 12 concept score columns
+                          Expected format detected: Student ID column followed by {uploadSummary.conceptCount} concept score columns
                         </div>
                         <div className="grid grid-cols-3 gap-3 mt-3">
                           <div className="bg-white rounded-lg p-3 text-center">
-                            <div className="text-lg text-[#00274C] font-medium">1,247</div>
+                            <div className="text-lg text-[#00274C] font-medium">{uploadSummary.rowCount.toLocaleString()}</div>
                             <div className="text-xs text-foreground-secondary">Students</div>
                           </div>
                           <div className="bg-white rounded-lg p-3 text-center">
-                            <div className="text-lg text-[#00274C] font-medium">12</div>
+                            <div className="text-lg text-[#00274C] font-medium">{uploadSummary.conceptCount}</div>
                             <div className="text-xs text-foreground-secondary">Concepts</div>
                           </div>
                           <div className="bg-white rounded-lg p-3 text-center">
-                            <div className="text-lg text-[#00274C] font-medium">0</div>
+                            <div className="text-lg text-[#00274C] font-medium">{uploadSummary.errorCount}</div>
                             <div className="text-xs text-foreground-secondary">Errors</div>
                           </div>
                         </div>
@@ -250,21 +263,18 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                 </p>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {['Limits', 'Derivatives', 'Integration', 'Chain Rule', 'FTC', 'Series'].map((concept, idx) => (
-                    <div key={idx} className="bg-surface border border-border rounded-lg p-4 space-y-3 hover:border-[#FFCB05]/30 transition-colors">
+                  {concepts.map((concept) => (
+                    <div key={concept.id} className="bg-surface border border-border rounded-lg p-4 space-y-3 hover:border-[#FFCB05]/30 transition-colors">
                       <div className="flex items-center justify-between">
-                        <div className="text-sm text-foreground font-medium">{concept}</div>
+                        <div className="text-sm text-foreground font-medium">{concept.name}</div>
                         <div className="text-xs text-[#00274C] bg-[#FFCB05]/10 px-2 py-1 rounded">
-                          {idx > 0 ? Math.floor(Math.random() * 3) : 0} prerequisites
+                          {concept.prerequisites.length} prerequisites
                         </div>
                       </div>
                       <div className="text-xs text-foreground-secondary">
-                        {idx === 0 && 'Foundation concept - no prerequisites'}
-                        {idx === 1 && 'Requires: Limits'}
-                        {idx === 2 && 'Requires: Derivatives'}
-                        {idx === 3 && 'Requires: Derivatives'}
-                        {idx === 4 && 'Requires: Derivatives, Integration'}
-                        {idx === 5 && 'Requires: Limits, Integration'}
+                        {concept.prerequisites.length === 0
+                          ? 'Foundation concept - no prerequisites'
+                          : `Requires: ${concept.prerequisites.map((id) => concepts.find((c) => c.id === id)?.name ?? id).join(', ')}`}
                       </div>
                       <div className="h-1.5 bg-white rounded-full overflow-hidden">
                         <div className="h-full bg-[#FFCB05]" style={{ width: '100%' }}></div>
@@ -276,7 +286,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                 <div className="bg-[#FFCB05]/5 border border-[#FFCB05]/20 rounded-xl p-4">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-[#00274C]" />
-                    <span className="text-sm text-foreground">12 concepts mapped with 18 dependencies</span>
+                    <span className="text-sm text-foreground">{concepts.length} concepts mapped with {dependencyCount} dependencies</span>
                   </div>
                 </div>
               </motion.div>
@@ -374,17 +384,17 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                     <div className="bg-surface border border-border rounded-xl p-6 space-y-4 w-full max-w-md">
                       <div className="flex items-center justify-between">
                         <span className="text-foreground-secondary">Students</span>
-                        <span className="text-foreground font-medium">1,247</span>
+                        <span className="text-foreground font-medium">{uploadSummary.rowCount.toLocaleString()}</span>
                       </div>
                       <div className="h-px bg-border"></div>
                       <div className="flex items-center justify-between">
                         <span className="text-foreground-secondary">Concepts</span>
-                        <span className="text-foreground font-medium">12</span>
+                        <span className="text-foreground font-medium">{uploadSummary.conceptCount}</span>
                       </div>
                       <div className="h-px bg-border"></div>
                       <div className="flex items-center justify-between">
                         <span className="text-foreground-secondary">Dependencies</span>
-                        <span className="text-foreground font-medium">18</span>
+                        <span className="text-foreground font-medium">{dependencyCount}</span>
                       </div>
                     </div>
                   </>
@@ -394,7 +404,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onComplete }) => {
                       size={64} 
                       message="Computing readiness scores across dependency graph..."
                     />
-                    <h2 className="text-xl text-foreground text-center">Processing 1,247 Students</h2>
+                    <h2 className="text-xl text-foreground text-center">Processing {uploadSummary.rowCount.toLocaleString()} Students</h2>
                   </>
                 )}
               </motion.div>

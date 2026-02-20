@@ -150,10 +150,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <ConceptLensButton 
                   variant="primary" 
                   onClick={onLogin}
-                  className="px-8 py-3 text-lg group"
+                  className="px-8 py-3 text-lg group inline-flex items-center justify-center"
                 >
                   Start Now
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </ConceptLensButton>
               </motion.div>
 
@@ -164,8 +164,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 className="flex flex-wrap gap-8 justify-center pt-8 text-sm text-foreground-secondary"
               >
                 <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-[#FFCB05]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                  </div>
                   <Shield className="w-4 h-4 text-[#FFCB05]" />
                   Institutional-grade security
+                  <div className="flex items-center gap-1 text-[#FFCB05]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -188,7 +196,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <div>
                   <h3 className="text-lg text-foreground mb-2">Dependency Mapping</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
-                    Visualize prerequisite relationships between concepts with interactive DAG views that reveal hidden learning pathways.
+                    See how topics connect so you can quickly spot what students should learn first.
                   </p>
                 </div>
               </motion.div>
@@ -204,7 +212,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <div>
                   <h3 className="text-lg text-foreground mb-2">Root-Cause Analysis</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
-                    Trace performance issues back to foundational gaps with AI-powered causal inference and waterfall diagnostics.
+                    Understand why scores drop by tracing problems back to the concepts students missed.
                   </p>
                 </div>
               </motion.div>
@@ -220,7 +228,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <div>
                   <h3 className="text-lg text-foreground mb-2">Concept Heatmaps</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
-                    Identify at-risk students and struggling concepts at a glance with color-coded performance matrices.
+                    Get a clear visual snapshot of who is struggling and which topics need extra support.
                   </p>
                 </div>
               </motion.div>
@@ -236,7 +244,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <div>
                   <h3 className="text-lg text-foreground mb-2">Student Profiles</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
-                    Generate personalized learning reports with targeted recommendations based on individual performance patterns.
+                    View easy-to-read student summaries with practical next-step recommendations.
                   </p>
                 </div>
               </motion.div>
@@ -252,7 +260,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <div>
                   <h3 className="text-lg text-foreground mb-2">Intervention Alerts</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
-                    Receive proactive notifications about students requiring immediate attention with prioritized action items.
+                    Receive timely alerts when a student may need help, along with suggested actions.
                   </p>
                 </div>
               </motion.div>
@@ -268,7 +276,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <div>
                   <h3 className="text-lg text-foreground mb-2">Longitudinal Tracking</h3>
                   <p className="text-sm text-foreground-secondary leading-relaxed">
-                    Monitor concept mastery over time with trend analysis and semester-over-semester comparisons.
+                    Track progress over time to see what is improving and what still needs attention.
                   </p>
                 </div>
               </motion.div>

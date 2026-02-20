@@ -162,3 +162,8 @@ export const defaultParameters = {
   gamma: 0.1,
   threshold: 0.5,
 };
+
+// Filter options (populate from API in production)
+export const courses: string[] = [];
+export const exams: string[] = [];
+export const semesters: string[] = [];

@@ -5,7 +5,7 @@ import { AlertPanel } from '../components/AlertPanel';
 import { ConceptDAG } from '../components/ConceptDAG';
 import { D3Heatmap } from '../components/D3Heatmap';
 import { ChevronDown, TrendingUp, Users, AlertCircle } from 'lucide-react';
-import { concepts, alerts, defaultParameters, students } from '../data/mockData';
+import { concepts, alerts, defaultParameters, students, courses, exams, semesters } from '../data/mockData';
 import type { ConceptNode } from '../data/mockData';
 
 interface InstructorDashboardProps {
@@ -31,31 +31,34 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ onConc
             <div className="h-6 w-px bg-border"></div>
             <div className="flex items-center gap-3">
               <select className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] focus:border-[#FFCB05]">
-                <option>MATH 2420 - Calculus II</option>
-                <option>MATH 1410 - Calculus I</option>
-                <option>MATH 3210 - Linear Algebra</option>
+                <option value="">{courses.length ? 'Select course' : '—'}</option>
+                {courses.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
               </select>
               <select className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] focus:border-[#FFCB05]">
-                <option>Midterm Exam</option>
-                <option>Final Exam</option>
-                <option>Quiz 1</option>
+                <option value="">{exams.length ? 'Select exam' : '—'}</option>
+                {exams.map((e) => (
+                  <option key={e} value={e}>{e}</option>
+                ))}
               </select>
               <select className="bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FFCB05] focus:border-[#FFCB05]">
-                <option>Spring 2026</option>
-                <option>Fall 2025</option>
-                <option>Spring 2025</option>
+                <option value="">{semesters.length ? 'Select semester' : '—'}</option>
+                {semesters.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
               </select>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-2 bg-surface rounded-lg border border-border">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg border border-border">
               <Users className="w-4 h-4 text-foreground-secondary" />
-              <span className="text-sm text-foreground">1,247 students</span>
+              <span className="text-sm text-foreground">{students.length.toLocaleString()} students</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-surface rounded-lg border border-border">
+            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg border border-border">
               <TrendingUp className="w-4 h-4 text-foreground-secondary" />
-              <span className="text-sm text-foreground">12 concepts</span>
+              <span className="text-sm text-foreground">{concepts.length} concepts</span>
             </div>
           </div>
         </div>
