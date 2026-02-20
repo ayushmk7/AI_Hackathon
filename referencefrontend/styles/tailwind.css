@@ -1,0 +1,42 @@
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,ts,jsx,tsx}';
+
+@import 'tw-animate-css';
+
+/* Custom styles for ConceptLens */
+@layer base {
+  /* Smooth scrolling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #222A36 #0E1116;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #0E1116;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #222A36;
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #2ED3A6;
+  }
+
+  /* Input range styling */
+  input[type="range"] {
+    background: linear-gradient(to right, #2ED3A6 0%, #2ED3A6 var(--value, 50%), #151A22 var(--value, 50%), #151A22 100%);
+  }
+}
+
+@layer utilities {
+  .bg-gradient-radial {
+    background-image: radial-gradient(circle at center, var(--tw-gradient-stops));
+  }
+}
