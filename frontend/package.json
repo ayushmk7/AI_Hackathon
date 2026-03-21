@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "remotion:studio": "remotion studio remotion/index.ts",
+    "remotion:render": "remotion render remotion/index.ts ProfessorProcessDemo out/professor-demo.mp4",
+    "remotion:render:quick": "remotion render remotion/index.ts ProfessorProcessDemo out/professor-demo-720p.mp4 --codec=h264 --scale=0.67",
+    "remotion:render:trailer": "remotion render remotion/index.ts ProfessorWebsiteTrailer out/professor-trailer.mp4"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -70,11 +74,13 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "@remotion/cli": "^4.0.426",
     "@tailwindcss/vite": "4.1.12",
     "@types/d3": "^7.4.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "4.7.0",
+    "remotion": "^4.0.426",
     "tailwindcss": "4.1.12",
     "typescript": "^5.9.3",
     "vite": "6.3.5"
